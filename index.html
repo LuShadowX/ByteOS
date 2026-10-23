@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteOS | A computer in your browser</title>
+    <meta name="description" content="ByteOS is a simulated computer that runs in the browser. Boot it, open the terminal, build a RAID array, crack a password, draw a flowchart, and learn how computers really work.">
+    <meta name="theme-color" content="#0f1b3d">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/apps.css">
+</head>
+<body>
+    <noscript><p class="noscript">ByteOS is a simulated computer built with JavaScript, so it needs JavaScript turned on.</p></noscript>
+
+    <section class="boot" id="boot" aria-live="polite">
+        <div class="boot__screen" id="boot-screen"></div>
+        <div class="boot__lesson" id="boot-lesson"></div>
+        <button type="button" class="boot__skip" id="boot-skip">Skip boot <kbd>Esc</kbd></button>
+    </section>
+
+    <section class="login" id="login" hidden aria-labelledby="login-title">
+        <div class="login__panel">
+            <p class="login__time" id="login-time"></p>
+            <h1 id="login-title">Who's using ByteOS?</h1>
+            <div class="login__users" id="login-users"></div>
+            <p class="login__hint">Each account has different permissions. Try the guest account later and see what it can't do.</p>
+        </div>
+    </section>
+
+    <main class="desktop" id="desktop" hidden>
+        <h1 class="sr-only">ByteOS desktop</h1>
+        <nav class="desktop__icons" id="desktop-icons" aria-label="Desktop apps"></nav>
+        <div class="desktop__windows" id="windows"></div>
+    </main>
+
+    <footer class="taskbar" id="taskbar" hidden>
+        <button type="button" class="taskbar__start" id="start-button" aria-haspopup="true" aria-expanded="false" aria-controls="start-menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="4"/></svg>
+            <span>Start</span>
+        </button>
+        <div class="taskbar__apps" id="taskbar-apps" aria-label="Open windows"></div>
+        <div class="taskbar__tray">
+            <span class="tray__user" id="tray-user"></span>
+            <button type="button" class="tray__clock" id="tray-clock" title=""></button>
+            <button type="button" class="tray__power" id="power-button" aria-label="Power options" aria-haspopup="true">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 7.2a8 8 0 1 0 11.4 0"/></svg>
+            </button>
+        </div>
+    </footer>
+
+    <div class="start-menu" id="start-menu" hidden role="dialog" aria-label="Start menu">
+        <input type="search" id="start-search" placeholder="Search apps and topics…" aria-label="Search apps" autocomplete="off">
+        <div class="start-menu__list" id="start-list"></div>
+    </div>
+
+    <div class="power-menu" id="power-menu" hidden role="menu">
+        <button type="button" role="menuitem" data-action="restart">Restart (watch the boot again)</button>
+        <button type="button" role="menuitem" data-action="logout">Log out / switch user</button>
+        <button type="button" role="menuitem" data-action="reset">Reset ByteOS to factory state</button>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
