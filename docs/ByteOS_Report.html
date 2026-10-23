@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ByteOS | CSE111 Project Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    :root { --ink: #11110f; --muted: #57534b; --faint: #8e897e; --line: #11110f1f; --accent: #c15f3c; --paper: #f5f2ea; --code: #1b1b19; --green: #2f7a46; }
+    @page { size: A4; margin: 15mm 14mm 16mm; }
+    @page :first { margin: 0; }
+    * { box-sizing: border-box; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin: 0; color: var(--ink); font: 9.6pt/1.55 'Inter', -apple-system, 'Segoe UI', sans-serif; }
+    h1, h2, h3, h4 { letter-spacing: -0.02em; line-height: 1.2; break-after: avoid; }
+    h2 { margin: 0 0 12px; font-size: 20pt; font-weight: 800; letter-spacing: -0.035em; }
+    h3 { margin: 20px 0 6px; font-size: 12pt; font-weight: 700; }
+    h4 { margin: 14px 0 4px; font-size: 10pt; font-weight: 700; }
+    p { margin: 0 0 8px; }
+    a { color: var(--ink); }
+    ul, ol { margin: 4px 0 10px; padding-left: 18px; }
+    li { margin-bottom: 3px; }
+    code { padding: 0.5px 4px; background: #11110f0f; border-radius: 3px; font: 8pt 'JetBrains Mono', ui-monospace, monospace; }
+    b, strong { font-weight: 650; }
+
+    .chapter { break-before: page; }
+    .kicker { margin: 0 0 6px; color: var(--accent); font: 600 7.5pt/1 'JetBrains Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; }
+    .lead { max-width: 160mm; margin-bottom: 14px; color: var(--muted); font-size: 10.6pt; line-height: 1.55; }
+
+    table { width: 100%; margin: 8px 0 14px; border-collapse: collapse; font-size: 8.5pt; }
+    th, td { padding: 5.5px 7px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    thead th { color: var(--muted); font: 600 7pt/1.3 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1.5px solid var(--ink); }
+    tbody th { font-weight: 650; }
+    tr { break-inside: avoid; }
+    .t-topics tbody th { width: 27%; }
+    .t-topics td:last-child { width: 13%; color: var(--accent); font: 600 7.6pt 'JetBrains Mono', monospace; white-space: nowrap; }
+    .ok { color: var(--green); font-weight: 700; }
+
+    figure { margin: 6px 0 14px; break-inside: avoid; }
+    figure img { display: block; width: 100%; border: 1px solid var(--line); border-radius: 6px; }
+    figcaption { margin-top: 5px; color: var(--muted); font-size: 8pt; line-height: 1.45; }
+    figcaption b { color: var(--ink); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; align-items: start; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 10px; align-items: start; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 10px; align-items: start; }
+    .fig-phone img { max-height: 125mm; object-fit: cover; object-position: top; }
+    .fig-tall img { max-height: 150mm; object-fit: cover; object-position: top; }
+    .fig-short img { max-height: 95mm; object-fit: cover; object-position: top; }
+
+    pre { margin: 6px 0 12px; padding: 10px 12px; overflow: hidden; color: #ecebe6; background: var(--code); border-radius: 6px; font: 7.4pt/1.5 'JetBrains Mono', ui-monospace, monospace; white-space: pre-wrap; break-inside: avoid; }
+    pre .file { display: block; margin-bottom: 6px; color: #e3a17f; font-weight: 600; }
+    .walk { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; break-inside: avoid; margin-bottom: 6px; }
+    .walk pre { margin-top: 0; }
+    .walk p, .walk li { font-size: 8.8pt; }
+    .tags { margin: 6px 0 0; }
+    .tag { display: inline-block; margin: 0 4px 4px 0; padding: 1.5px 7px; color: var(--accent); background: #c15f3c14; border-radius: 99px; font: 600 7pt 'JetBrains Mono', monospace; }
+
+    .note { margin: 8px 0 12px; padding: 9px 12px; background: var(--paper); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font-size: 9pt; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 16px; }
+    .stat { padding: 12px; background: var(--paper); border-radius: 8px; }
+    .stat b { display: block; font-size: 19pt; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+    .stat span { color: var(--muted); font-size: 8pt; }
+    .co-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0 14px; }
+    .co-card { padding: 10px 11px; background: var(--paper); border-radius: 8px; font-size: 8.4pt; break-inside: avoid; }
+    .co-card b { display: block; margin-bottom: 2px; color: var(--accent); font: 700 8.5pt 'JetBrains Mono', monospace; }
+    .co-card em { display: block; margin-top: 5px; color: var(--muted); font-style: normal; font-size: 7.8pt; }
+    .prac { padding: 12px 0 4px; border-top: 1.5px solid var(--ink); break-inside: avoid; }
+    .prac h4 { margin: 0 0 4px; }
+    .prac h4 span { color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-right: 6px; }
+    .toc { columns: 2; column-gap: 14mm; margin-top: 10px; padding: 0; list-style: none; }
+    .toc li { display: flex; gap: 10px; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1px solid var(--line); break-inside: avoid; font-size: 10pt; font-weight: 600; }
+    .toc li span { color: var(--accent); font: 600 9pt 'JetBrains Mono', monospace; }
+    .toc li small { display: block; color: var(--muted); font-weight: 400; font-size: 8.2pt; }
+
+    /* cover */
+    .cover { position: relative; height: 297mm; padding: 18mm 16mm 16mm; overflow: hidden; color: #f2f0e9; background: #0d0d0c; break-after: page; }
+    .cover__top { display: flex; justify-content: space-between; color: #f2f0e999; font: 600 7.5pt/1 'JetBrains Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; }
+    .cover h1 { margin: 22mm 0 6mm; font-size: 62pt; font-weight: 800; letter-spacing: -0.06em; line-height: 0.9; }
+    .cover h1 span { color: var(--accent); }
+    .cover__sub { max-width: 140mm; margin: 0 0 10mm; color: #f2f0e9cc; font-size: 12.5pt; line-height: 1.5; }
+    .cover__shot { width: 100%; height: 92mm; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid #ffffff1f; }
+    .cover dl { position: absolute; left: 16mm; right: 16mm; bottom: 16mm; display: grid; grid-template-columns: 38mm 1fr 38mm 1fr; gap: 8px 10px; margin: 0; padding-top: 14px; border-top: 1px solid #f2f0e94d; font-size: 9pt; }
+    .cover dt { color: #f2f0e980; font: 600 7pt/1.8 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+    .cover dd { margin: 0; }
+    .cover a { color: #f2f0e9; }
+    .blank { display: inline-block; min-width: 40mm; border-bottom: 1px solid #f2f0e980; }
+
+    .diagram { margin: 6px 0 14px; padding: 12px; background: var(--paper); border-radius: 8px; break-inside: avoid; }
+    .diagram svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<section class="cover">
+    <div class="cover__top"><span>CSE111 · Orientation to Computing</span><span>Project report</span></div>
+    <h1>Byte<span>OS</span></h1>
+    <p class="cover__sub">A computer that runs in the browser. It boots like a real PC and every app on its desktop lets you use a part of the syllabus: a Linux terminal with real permissions and git, a RAID lab, a compiler, network and security labs, flowcharts, careers and emerging tech.</p>
+    <img class="cover__shot" src="images/05b-desktop-windows.png" alt="">
+    <dl>
+        <dt>Student</dt><dd>Lukshya Singh Supyal</dd>
+        <dt>Registration no.</dt><dd><span class="blank">&nbsp;</span></dd>
+        <dt>Programme</dt><dd>B.Tech CSE, Semester 5</dd>
+        <dt>Course</dt><dd>CSE111 Orientation to Computing-I</dd>
+        <dt>Live website</dt><dd><a href="https://lushadowx.github.io/ByteOS/">lushadowx.github.io/ByteOS</a></dd>
+        <dt>Source code</dt><dd><a href="https://github.com/LuShadowX/ByteOS">github.com/LuShadowX/ByteOS</a></dd>
+    </dl>
+</section>
+
+<!-- ============ CONTENTS ============ -->
+<section>
+    <p class="kicker">Contents</p>
+    <h2>What's in this report</h2>
+    <ol class="toc">
+        <li><span>01</span><div>Project overview<small>Idea, apps, numbers</small></div></li>
+        <li><span>02</span><div>How it's built<small>Architecture and files</small></div></li>
+        <li><span>03</span><div>Boot, login and desktop<small>The OS shell</small></div></li>
+        <li><span>04</span><div>Unit 1 · Computer system<small>Inside the Computer, Number Systems</small></div></li>
+        <li><span>05</span><div>Unit 2 · Operating system<small>System Monitor, Compiler Lab</small></div></li>
+        <li><span>06</span><div>Unit 3 · Linux<small>Terminal, Files, Virtual Machines</small></div></li>
+        <li><span>07</span><div>Unit 4 · Cohorts and skill sets<small>Career Compass</small></div></li>
+        <li><span>08</span><div>Unit 5 · Networks and security<small>Network Lab, Security Center</small></div></li>
+        <li><span>09</span><div>Unit 6 · Version control, AI, profiles<small>Git Lab, AI Studio</small></div></li>
+        <li><span>10</span><div>Computational thinking<small>Flowchart Studio</small></div></li>
+        <li><span>11</span><div>Syllabus and CO mapping<small>Every topic, both syllabus versions</small></div></li>
+        <li><span>12</span><div>Code walkthrough<small>How the important parts work</small></div></li>
+        <li><span>13</span><div>Testing<small>What was checked and the results</small></div></li>
+        <li><span>14</span><div>Deployment and conclusion<small>GitHub Pages, what I learned</small></div></li>
+    </ol>
+    <div class="note" style="margin-top:14px">Every screenshot was taken from ByteOS while actually using it. Every code extract is copied straight from the source files, with file names and line numbers.</div>
+</section>
+
+<!-- ============ 01 OVERVIEW ============ -->
+<section class="chapter">
+    <p class="kicker">01 · Project overview</p>
+    <h2>Learning computing by using a computer</h2>
+    <p class="lead">CSE111 is a theory course, so the usual risk is that topics like kernels, RAID or phishing stay as definitions. ByteOS turns each topic into something you can try. You boot it, log in as a user with limited permissions, open apps from the desktop, and every app is a working model of one part of the syllabus.</p>
+    <div class="stats">
+        <div class="stat"><b>14</b><span>apps on the desktop</span></div>
+        <div class="stat"><b>58</b><span>interactive screens (tabs)</span></div>
+        <div class="stat"><b>~7,000</b><span>lines of JavaScript, HTML and CSS</span></div>
+        <div class="stat"><b>6 / 6</b><span>units and course outcomes covered</span></div>
+    </div>
+    <h3>The apps</h3>
+    <table>
+        <thead><tr><th>App</th><th>What you do in it</th><th>Syllabus area</th></tr></thead>
+        <tbody>
+            <tr><th>Course Map</th><td>See every syllabus topic, open the app that teaches it, and track your progress</td><td>All units</td></tr>
+            <tr><th>Inside the Computer</th><td>Block diagram with a live fetch–decode–execute cycle, memory hierarchy, SSD vs HDD race, CPU vs GPU, ports, RAID lab</td><td>Unit 1</td></tr>
+            <tr><th>Number Systems</th><td>Base conversions with full working, bit board, text as binary, quiz</td><td>Current Unit I</td></tr>
+            <tr><th>System Monitor</th><td>Live processes, kernel types, OS types, boot process, CPU scheduling</td><td>Unit 2</td></tr>
+            <tr><th>Compiler Lab</th><td>Compile or interpret a small language step by step down to machine code</td><td>Unit 2</td></tr>
+            <tr><th>Terminal</th><td>A Linux shell with files, permissions, users, sudo, pipes and git</td><td>Units 3 and 6</td></tr>
+            <tr><th>Files</th><td>Directory hierarchy, permission bits, file system types</td><td>Units 2 and 3</td></tr>
+            <tr><th>Virtual Machines</th><td>Create and run VMs on a limited host, compare Linux and Windows, distros, cloud models</td><td>Unit 3</td></tr>
+            <tr><th>Network Lab</th><td>Break topologies, watch a switch learn MAC addresses, follow a web request</td><td>Unit 5</td></tr>
+            <tr><th>Security Center</th><td>Crack-time estimates, rainbow tables, working 2FA codes, phishing, malware, accounts, firewall</td><td>Unit 5</td></tr>
+            <tr><th>Git Lab</th><td>Live commit graph of the repository you build in the terminal, guided missions</td><td>Unit 6</td></tr>
+            <tr><th>Flowchart Studio</th><td>Run algorithms as pseudocode and flowcharts with a trace table</td><td>CO4</td></tr>
+            <tr><th>Career Compass</th><td>Cohorts, pathways, MOOCs, hackathons, profile checker, cohort quiz</td><td>Units 4 and 6</td></tr>
+            <tr><th>AI Studio</th><td>AI basics, GenAI tools, prompt analyser, ethics, agentic AI, IoT, blockchain, Web3</td><td>Unit 6, CO6</td></tr>
+        </tbody>
+    </table>
+    <h3>Technology</h3>
+    <p>Plain HTML, CSS and JavaScript (ES modules). There is no framework and no server: everything runs in the browser and saves to the browser's local storage. The site is hosted for free on GitHub Pages.</p>
+</section>
+
+<!-- ============ 02 ARCHITECTURE ============ -->
+<section class="chapter">
+    <p class="kicker">02 · How it's built</p>
+    <h2>Architecture</h2>
+    <p class="lead">ByteOS copies the structure of a real operating system on purpose. A boot sequence hands over to a login screen. A window manager runs apps as processes. All apps share one file system, and that file system enforces permissions.</p>
+    <div class="diagram">
+        <svg viewBox="0 0 760 270" font-family="Inter, sans-serif" font-size="11">
+            <rect x="10" y="10" width="740" height="44" rx="10" fill="#2f6fed"/><text x="380" y="37" text-anchor="middle" fill="#fff" font-weight="700">14 apps (ES modules, loaded on demand): Terminal · Files · Git Lab · Network Lab · Security Center · …</text>
+            <rect x="10" y="64" width="360" height="44" rx="10" fill="#00a389"/><text x="190" y="91" text-anchor="middle" fill="#fff" font-weight="700">Window manager (wm.js): windows = processes with PIDs</text>
+            <rect x="390" y="64" width="360" height="44" rx="10" fill="#00a389"/><text x="570" y="91" text-anchor="middle" fill="#fff" font-weight="700">Desktop, start menu, login (main.js)</text>
+            <rect x="10" y="118" width="240" height="56" rx="10" fill="#ef6c00"/><text x="130" y="142" text-anchor="middle" fill="#fff" font-weight="700">vfs.js · file system</text><text x="130" y="160" text-anchor="middle" fill="#fff">owners, rwx permissions</text>
+            <rect x="260" y="118" width="240" height="56" rx="10" fill="#ef6c00"/><text x="380" y="142" text-anchor="middle" fill="#fff" font-weight="700">git.js · version control</text><text x="380" y="160" text-anchor="middle" fill="#fff">index, commits, branches, merge</text>
+            <rect x="510" y="118" width="240" height="56" rx="10" fill="#ef6c00"/><text x="630" y="142" text-anchor="middle" fill="#fff" font-weight="700">store.js · storage + event bus</text><text x="630" y="160" text-anchor="middle" fill="#fff">apps react to each other</text>
+            <rect x="10" y="184" width="740" height="36" rx="10" fill="#7c4dff"/><text x="380" y="207" text-anchor="middle" fill="#fff" font-weight="700">boot.js: POST → GRUB → kernel → systemd → login</text>
+            <rect x="10" y="230" width="740" height="32" rx="10" fill="#4a5165"/><text x="380" y="251" text-anchor="middle" fill="#fff" font-weight="700">The browser: DOM, Web Crypto (SHA-256, HMAC), localStorage, SVG, Canvas</text>
+        </svg>
+    </div>
+    <p>The layers mirror the "OS architecture" diagram in the syllabus. Applications sit on top. They talk to shared services (the file system and git) instead of touching storage directly, the same way real apps make system calls instead of touching hardware.</p>
+    <h3>Files</h3>
+    <table>
+        <thead><tr><th>File</th><th>Job</th><th>Lines</th></tr></thead>
+        <tbody>
+            <tr><th><code>js/core/boot.js</code></th><td>The four boot stages with an explanation for each</td><td>180</td></tr>
+            <tr><th><code>js/core/wm.js</code></th><td>Window manager: open, focus, drag, resize, minimise, PIDs</td><td>167</td></tr>
+            <tr><th><code>js/core/vfs.js</code></th><td>Linux-style file system with users, owners and permission checks</td><td>275</td></tr>
+            <tr><th><code>js/core/git.js</code></th><td>Git commands working on the same file system</td><td>364</td></tr>
+            <tr><th><code>js/apps/terminal.js</code></th><td>Shell: parser, pipes, redirection, 45 commands</td><td>655</td></tr>
+            <tr><th><code>js/apps/hardware.js</code></th><td>Computer basics, CPU cycle, memory, storage, GPU, ports, RAID</td><td>552</td></tr>
+            <tr><th><code>js/apps/compiler.js</code></th><td>Lexer, parser, code generator, virtual machine, interpreter</td><td>465</td></tr>
+            <tr><th><code>js/apps/security.js</code></th><td>Password analysis, hashing, TOTP, phishing, firewall</td><td>455</td></tr>
+            <tr><th><code>js/apps/network.js</code></th><td>Topologies with failure, devices, client–server</td><td>390</td></tr>
+            <tr><th><code>js/apps/monitor.js</code></th><td>Processes, kernels, OS types, boot, scheduling</td><td>330</td></tr>
+            <tr><th><code>js/apps/*.js</code> (others)</th><td>Numbers, Files, VMs, Git Lab, Flowchart, Careers, AI, Course Map</td><td>—</td></tr>
+            <tr><th><code>css/base.css</code>, <code>css/apps.css</code></th><td>All styling, responsive down to phone width</td><td>—</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ============ 03 BOOT ============ -->
+<section class="chapter">
+    <p class="kicker">03 · Boot, login and desktop</p>
+    <h2>It starts like a real computer</h2>
+    <p class="lead">Opening the site powers the machine on. Each boot stage shows a short note at the bottom explaining what a real PC is doing at that moment. This covers the bootloader and boot process topics from Unit 2.</p>
+    <div class="grid3">
+        <figure class=""><img src="images/01-boot-bios.png" alt=""><figcaption><b>Fig. 1</b> · <b>Stage 1 · Firmware.</b> The BIOS runs the Power-On Self-Test: CPU, GPU, a RAM count-up and the disk.</figcaption></figure>
+        <figure class=""><img src="images/02-boot-grub.png" alt=""><figcaption><b>Fig. 2</b> · <b>Stage 2 · Bootloader.</b> A GRUB menu with recovery mode and a memory test. Arrow keys and Enter work.</figcaption></figure>
+        <figure class=""><img src="images/03-boot-kernel.png" alt=""><figcaption><b>Fig. 3</b> · <b>Stages 3–4 · Kernel and services.</b> Kernel messages, then systemd starting services with [ OK ] lines.</figcaption></figure>
+    </div>
+    <div class="grid2">
+        <figure class=""><img src="images/04-login.png" alt=""><figcaption><b>Fig. 4</b> · <b>Login.</b> Two accounts: a standard user (can use sudo) and a guest. Permissions really differ between them.</figcaption></figure>
+        <figure class=""><img src="images/05-desktop-start-menu.png" alt=""><figcaption><b>Fig. 5</b> · <b>Desktop and start menu.</b> Apps grouped by syllabus area, with search.</figcaption></figure>
+    </div>
+    <figure class="fig-short"><img src="images/06-coursemap-welcome.png" alt=""><figcaption><b>Fig. 6</b> · <b>Course Map</b> opens on first login. It explains ByteOS and links to quick starts in each app.</figcaption></figure>
+</section>
+
+<!-- ============ 04 UNIT 1 ============ -->
+<section class="chapter">
+    <p class="kicker">04 · Unit 1 · Computer system</p>
+    <h2>Inside the Computer</h2>
+    <p class="lead">Seven tabs cover the whole of Unit 1: the structure of a computer, memory, storage, processors, interfaces and RAID. The current syllabus's evolution, characteristics and types of computers are here too.</p>
+    <figure class=""><img src="images/20-hw-block-cycle.png" alt=""><figcaption><b>Fig. 7</b> · <b>Block diagram + instruction cycle.</b> Each unit (input, CU, ALU, registers, memory, storage, output, bus) is clickable. "Step" runs a 5-instruction program for A = 5 + 3. The active units light up, and PC, IR, R1, R2 and RAM update at every fetch, decode and execute.</figcaption></figure>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/21-hw-basics.png" alt=""><figcaption><b>Fig. 8</b> · <b>Computer basics.</b> Five generations, characteristics, types of computers, I/O devices, and a hardware vs software sorting game.</figcaption></figure>
+        <figure class="fig-short"><img src="images/22-hw-memory.png" alt=""><figcaption><b>Fig. 9</b> · <b>Memory hierarchy.</b> Click a level for size, speed and volatility, plus "if a register took 1 second" to make the speed gaps feel real. RAM and ROM families below.</figcaption></figure>
+        <figure class="fig-short"><img src="images/23-hw-storage.png" alt=""><figcaption><b>Fig. 10</b> · <b>SSD vs HDD race.</b> 12 random reads: the HDD pays seek and rotation time for each (150 ms), the SSD about 1 ms.</figcaption></figure>
+        <figure class="fig-short"><img src="images/24-hw-cpugpu.png" alt=""><figcaption><b>Fig. 11</b> · <b>CPU vs GPU.</b> 8 cores vs 256 cores paint the same image, one pixel per core per tick: 169 ticks vs 9.</figcaption></figure>
+    </div>
+    <figure class="fig-short"><img src="images/25-hw-ports.png" alt=""><figcaption><b>Fig. 12</b> · <b>PC connection interfaces.</b> Wired and wireless ports with maximum speeds on a log scale and the time to copy a 25 GB file over each.</figcaption></figure>
+    <h3>RAID lab</h3>
+    <p>Choose RAID 0, 1, 5, 6 or 10 and 2–6 disks. Your text is split into blocks and laid out exactly as that level would: striped, mirrored, or striped with rotating parity. The parity is computed for real: P is the XOR of the data blocks, and Q uses Galois-field multiplication. Click a disk to fail it.</p>
+    <div class="grid2">
+        <figure class=""><img src="images/26-hw-raid5-degraded.png" alt=""><figcaption><b>Fig. 13</b> · <b>RAID 5, one disk failed:</b> "degraded but alive". The missing blocks are rebuilt by XOR (shown in yellow) and the data reads back complete.</figcaption></figure>
+        <figure class=""><img src="images/27-hw-raid0-failed.png" alt=""><figcaption><b>Fig. 14</b> · <b>RAID 0, one disk failed:</b> "array failed". Striping has no redundancy, so the blocks on that disk are lost (red).</figcaption></figure>
+    </div>
+</section>
+
+<section class="chapter">
+    <h2 style="margin-top:0">Number Systems</h2>
+    <p class="lead">Conversions between binary, octal, decimal and hexadecimal with the working written out the way it is done in an exam.</p>
+    <div class="grid2">
+        <figure class=""><img src="images/30-numbers-convert.png" alt=""><figcaption><b>Fig. 15</b> · <b>Decimal → hex by repeated division.</b> 2026 ÷ 16 step by step. The remainders read upwards give 7EA.</figcaption></figure>
+        <figure class=""><img src="images/31-numbers-grouping.png" alt=""><figcaption><b>Fig. 16</b> · <b>Binary → decimal by positional expansion.</b> Each digit × 2ⁿ, summed to 107. The grouping shortcut (3 bits per octal digit) is also shown.</figcaption></figure>
+        <figure class=""><img src="images/32-numbers-bits.png" alt=""><figcaption><b>Fig. 17</b> · <b>Bit board.</b> Toggle bits and see the value in every base. Signed mode shows two's complement: 11000001 = −63.</figcaption></figure>
+        <figure class=""><img src="images/33-numbers-text.png" alt=""><figcaption><b>Fig. 18</b> · <b>Text as binary.</b> Each character's code point and UTF-8 bytes.</figcaption></figure>
+    </div>
+</section>
+
+<!-- ============ 05 UNIT 2 ============ -->
+<section class="chapter">
+    <p class="kicker">05 · Unit 2 · Operating system</p>
+    <h2>System Monitor</h2>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/40-monitor-procs.png" alt=""><figcaption><b>Fig. 19</b> · <b>Processes.</b> System processes (systemd PID 1, sshd, the firewall) plus every open window as a process with a PID. "End task" really closes the window.</figcaption></figure>
+        <figure class="fig-short"><img src="images/41-monitor-kernel.png" alt=""><figcaption><b>Fig. 20</b> · <b>OS architecture and kernel types.</b> The layers from apps to hardware, and diagrams of monolithic, micro, hybrid and exokernels with examples, pros and cons.</figcaption></figure>
+        <figure class="fig-short"><img src="images/42-monitor-ostypes.png" alt=""><figcaption><b>Fig. 21</b> · <b>Types of OS.</b> Batch, time-sharing, distributed, network, real-time and mobile, plus a "which OS fits this scenario?" quiz.</figcaption></figure>
+        <figure class="fig-short"><img src="images/43-monitor-boot.png" alt=""><figcaption><b>Fig. 22</b> · <b>Boot process.</b> Seven steps from power-on to login, MBR vs GPT, and a button that reboots ByteOS to watch it happen.</figcaption></figure>
+    </div>
+    <figure class="fig-short"><img src="images/44-monitor-scheduling.png" alt=""><figcaption><b>Fig. 23</b> · <b>OS functions and CPU scheduling.</b> Eight OS functions, then a working scheduler: edit arrival and burst times and compare FCFS, SJF and Round Robin. The Gantt chart and the average waiting and turnaround times are calculated live.</figcaption></figure>
+    <h2>Compiler Lab</h2>
+    <p class="lead">Covers computer languages, language translators, the program development cycle, and compilation and execution. ByteScript is a tiny language (<code>let</code>, <code>print</code>, arithmetic, brackets), and ByteOS really compiles it.</p>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/50-compiler-stages.png" alt=""><figcaption><b>Fig. 24</b> · <b>Stages 1–2.</b> Lexical analysis splits the code into colour-coded tokens. Parsing builds an abstract syntax tree.</figcaption></figure>
+        <figure class="fig-short"><img src="images/51-compiler-machine-code.png" alt=""><figcaption><b>Fig. 25</b> · <b>Stages 4–5.</b> Each assembly instruction with its address and bytes in hex and binary, then a stack VM runs it. Output: 60 and 34.</figcaption></figure>
+        <figure class="fig-short"><img src="images/52-compiler-error.png" alt=""><figcaption><b>Fig. 26</b> · <b>Compiler mode, missing ";" on line 4.</b> The compiler reports the error at line 4 and runs nothing.</figcaption></figure>
+        <figure class="fig-short"><img src="images/53-interpreter-error.png" alt=""><figcaption><b>Fig. 27</b> · <b>Interpreter mode, same program.</b> Lines 1–3 are translated and run (82 is printed), then it stops at line 4. This is the compiler vs interpreter difference.</figcaption></figure>
+    </div>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/54-compiler-levels.png" alt=""><figcaption><b>Fig. 28</b> · <b>Languages and translators.</b> One task in high-level, assembly and machine code, and assembler vs compiler vs interpreter.</figcaption></figure>
+        <figure class="fig-short"><img src="images/55-compiler-cycle.png" alt=""><figcaption><b>Fig. 29</b> · <b>Program development cycle,</b> the C toolchain (preprocessor → compiler → assembler → linker → loader) and the three kinds of errors.</figcaption></figure>
+    </div>
+</section>
+
+<!-- ============ 06 UNIT 3 ============ -->
+<section class="chapter">
+    <p class="kicker">06 · Unit 3 · Linux operating system</p>
+    <h2>Terminal</h2>
+    <p class="lead">A bash-style shell with 45 commands over a Linux file system (/bin, /boot, /dev, /etc, /home, /root, /tmp, /usr, /var, /proc). It supports quotes, $VARIABLES, * globs, pipes <code>|</code>, redirection <code>&gt; &gt;&gt;</code>, <code>&amp;&amp;</code> chains, Tab completion, history and <code>man</code> pages.</p>
+    <figure class=""><img src="images/10-terminal-permissions.png" alt=""><figcaption><b>Fig. 30</b> · <b>Permissions and users.</b> <code>cat /etc/shadow</code> is denied for a normal user and works with <code>sudo</code>. <code>chmod 600</code> changes the mode to <code>-rw-------</code>. A pipe filters notes with grep, <code>&gt;&gt;</code> appends to a file. After <code>su guest</code>, <code>sudo</code> is refused: "guest is not in the sudoers file".</figcaption></figure>
+    <figure class="fig-short"><img src="images/11-terminal-system.png" alt=""><figcaption><b>Fig. 31</b> · <b>System commands.</b> <code>uname -a</code>, <code>ps</code> (window PIDs appear next to system processes), <code>df -hT</code> with file system types (ext4, vfat, tmpfs, proc) and <code>tree</code>.</figcaption></figure>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/14-files-browser.png" alt=""><figcaption><b>Fig. 32</b> · <b>Files.</b> Directory tree, a description of each top-level folder, and a permission table for the selected file (secret.txt is 600: only the owner can read it).</figcaption></figure>
+        <figure class="fig-short"><img src="images/15-files-fstypes.png" alt=""><figcaption><b>Fig. 33</b> · <b>File system types.</b> FAT32, exFAT, NTFS, ext4, HFS+, APFS and UDF compared, and a "pick the right file system" quiz.</figcaption></figure>
+    </div>
+    <h2>Virtual Machines</h2>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/60-vms-hypervisor.png" alt=""><figcaption><b>Fig. 34</b> · <b>Hypervisor.</b> Create VMs from OS images with vCPU, RAM and disk sliders. The host's limits are enforced and minimum requirements are checked. Type 1 vs type 2 diagrams and VirtualBox steps follow.</figcaption></figure>
+        <figure class="fig-short"><img src="images/61-vms-compare.png" alt=""><figcaption><b>Fig. 35</b> · <b>Linux.</b> Architecture (hardware → kernel → shell → applications), features, and a full Windows vs Linux comparison.</figcaption></figure>
+        <figure class="fig-short"><img src="images/62-vms-distros.png" alt=""><figcaption><b>Fig. 36</b> · <b>Distributions and open source.</b> Eight distros with base and package manager, and open-source software with licences.</figcaption></figure>
+        <figure class="fig-short"><img src="images/63-vms-cloud.png" alt=""><figcaption><b>Fig. 37</b> · <b>Cloud computing.</b> Who manages what in on-premises, IaaS, PaaS and SaaS, with examples and deployment models.</figcaption></figure>
+    </div>
+</section>
+
+<!-- ============ 07 UNIT 4 ============ -->
+<section class="chapter">
+    <p class="kicker">07 · Unit 4 · Cohorts and skill sets</p>
+    <h2>Career Compass</h2>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/100-careers-cohorts.png" alt=""><figcaption><b>Fig. 38</b> · <b>Cohorts.</b> All eight from the syllabus (Cloud, Data Science, ML, Software Development, Full Stack, Methodologies & Testing, Teaching & Research, Cyber Security) with skills, tools, roles and a first step.</figcaption></figure>
+        <figure class="fig-short"><img src="images/101-careers-pathways.png" alt=""><figcaption><b>Fig. 39</b> · <b>Pathways.</b> Product-based, service-based, government, higher studies and entrepreneurship, plus MAANG.</figcaption></figure>
+        <figure class="fig-short"><img src="images/102-careers-moocs.png" alt=""><figcaption><b>Fig. 40</b> · <b>MOOCs.</b> Types, platforms (NPTEL/SWAYAM, Coursera, edX…) and benefits.</figcaption></figure>
+        <figure class="fig-short"><img src="images/103-careers-hackathons.png" alt=""><figcaption><b>Fig. 41</b> · <b>Hackathons.</b> SIH, GSoC, Hacktoberfest, ICPC, Kaggle and others, with a saved prep checklist.</figcaption></figure>
+    </div>
+    <figure class="fig-short"><img src="images/105-careers-quiz-result.png" alt=""><figcaption><b>Fig. 42</b> · <b>Find your cohort.</b> Five questions score each cohort and suggest a three-step roadmap.</figcaption></figure>
+</section>
+
+<!-- ============ 08 UNIT 5 ============ -->
+<section class="chapter">
+    <p class="kicker">08 · Unit 5 · Computer network and communication</p>
+    <h2>Network Lab</h2>
+    <div class="grid3">
+        <figure class=""><img src="images/70-network-ring-one-cut.png" alt=""><figcaption><b>Fig. 43</b> · <b>Ring, one cable cut:</b> still 6/6 reachable, because data goes the other way round.</figcaption></figure>
+        <figure class=""><img src="images/71-network-ring-two-cuts.png" alt=""><figcaption><b>Fig. 44</b> · <b>Ring, two cuts:</b> the network splits, so only 3/6 are reachable.</figcaption></figure>
+        <figure class=""><img src="images/72-network-star-hub-failed.png" alt=""><figcaption><b>Fig. 45</b> · <b>Star, switch failed:</b> 1/6. The centre is a single point of failure.</figcaption></figure>
+    </div>
+    <p>Bus, star, ring, mesh and tree are generated for 4–8 computers. Reachability is worked out with a breadth-first search, and the app also tests whether the topology survives any single cable cut. "Send" animates a packet along the route.</p>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/73-network-switch.png" alt=""><figcaption><b>Fig. 46</b> · <b>Hub vs switch vs router.</b> A hub floods every port. A switch learns MAC addresses (table shown) and then sends to one port. Below, a router picks a route from a routing table for any IP you type.</figcaption></figure>
+        <figure class="fig-short"><img src="images/74-network-client-server.png" alt=""><figcaption><b>Fig. 47</b> · <b>Client–server.</b> A sequence diagram of loading a URL: DNS, TCP handshake, TLS, HTTP request, server work, response, rendering.</figcaption></figure>
+    </div>
+    <figure class="fig-short"><img src="images/75-network-types.png" alt=""><figcaption><b>Fig. 48</b> · <b>Network types</b> PAN, LAN, MAN and WAN, the five components of data communication, and transmission media.</figcaption></figure>
+</section>
+
+<section class="chapter">
+    <h2 style="margin-top:0">Security Center</h2>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/84-security-cia.png" alt=""><figcaption><b>Fig. 49</b> · <b>CIA triad,</b> threats and protection for each, and a "which one is attacked?" quiz.</figcaption></figure>
+        <figure class="fig-short"><img src="images/80-security-passwords.png" alt=""><figcaption><b>Fig. 50</b> · <b>Password cracking.</b> "P@ssw0rd123" is caught as a dictionary word with tweaks (14 bits). Crack time for brute force offline vs online, and a passphrase generator.</figcaption></figure>
+        <figure class="fig-short"><img src="images/81-security-rainbow.png" alt=""><figcaption><b>Fig. 51</b> · <b>Hashing and rainbow tables.</b> Real SHA-256. The unsalted hash of "iloveyou" is found in the attacker's table instantly. With a salt it is not.</figcaption></figure>
+        <figure class="fig-short"><img src="images/82-security-mfa.png" alt=""><figcaption><b>Fig. 52</b> · <b>Working two-factor authentication.</b> The authenticator shows a 6-digit TOTP code every 30 s. Login needs password + code. The setup key also works in Google Authenticator.</figcaption></figure>
+        <figure class="fig-short"><img src="images/83-security-phishing.png" alt=""><figcaption><b>Fig. 53</b> · <b>Phishing.</b> Judge real-looking emails, then the red flags are highlighted. Spear phishing, whaling, vishing and smishing are explained.</figcaption></figure>
+        <figure class="fig-short"><img src="images/85-security-malware.png" alt=""><figcaption><b>Fig. 54</b> · <b>Malware.</b> Virus, worm, trojan, spyware, ransomware, keylogger, adware and rootkit with real examples and a quiz.</figcaption></figure>
+        <figure class="fig-short"><img src="images/86-security-accounts.png" alt=""><figcaption><b>Fig. 55</b> · <b>User account types</b> (root, standard, guest), with buttons that run the matching commands in the Terminal.</figcaption></figure>
+        <figure class="fig-short"><img src="images/87-security-firewall.png" alt=""><figcaption><b>Fig. 56</b> · <b>Firewall.</b> Editable rules checked top to bottom, first match wins, default deny. Seven test packets show allowed or blocked and which rule decided.</figcaption></figure>
+    </div>
+</section>
+
+<!-- ============ 09 UNIT 6 ============ -->
+<section class="chapter">
+    <p class="kicker">09 · Unit 6 · Version control, AI and profiles</p>
+    <h2>Git in the Terminal + Git Lab</h2>
+    <figure class=""><img src="images/12-terminal-git.png" alt=""><figcaption><b>Fig. 57</b> · <b>A complete git workflow</b> typed in the Terminal: init, add, commit, create and switch to a branch, commit there, switch back, commit on main, merge (a real three-way merge), and log.</figcaption></figure>
+    <figure class=""><img src="images/13-gitlab.png" alt=""><figcaption><b>Fig. 58</b> · <b>Git Lab</b> draws the same repository live: working directory → staging area → repository, the commit graph with the feature branch merging back, and missions that tick off automatically (7 of 8 done here).</figcaption></figure>
+    <h2>AI Studio</h2>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/110-ai-basics.png" alt=""><figcaption><b>Fig. 59</b> · <b>AI basics.</b> AI ⊃ machine learning ⊃ deep learning ⊃ generative AI, and real-life applications.</figcaption></figure>
+        <figure class="fig-short"><img src="images/111-ai-genai.png" alt=""><figcaption><b>Fig. 60</b> · <b>Generative AI and tools.</b> Model types, and text, image, video and research tools (ChatGPT, Gemini, DALL·E, Midjourney, Runway, Sora, Perplexity AI, NotebookLM, Jenni AI).</figcaption></figure>
+        <figure class="fig-short"><img src="images/112-ai-prompts.png" alt=""><figcaption><b>Fig. 61</b> · <b>Prompt engineering.</b> A prompt is scored against the CREATE framework. The good example scores 6/6, the poor one 0/6.</figcaption></figure>
+        <figure class="fig-short"><img src="images/113-ai-ethics.png" alt=""><figcaption><b>Fig. 62</b> · <b>Ethical use of AI.</b> Principles and "acceptable or not?" scenarios.</figcaption></figure>
+    </div>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/114-ai-agentic.png" alt=""><figcaption><b>Fig. 63</b> · <b>Agentic AI.</b> An agent books a train: perceive → plan → act (tool calls) → observe, and it asks the user before paying.</figcaption></figure>
+        <figure class="fig-short"><img src="images/116-ai-blockchain-tampered.png" alt=""><figcaption><b>Fig. 64</b> · <b>Blockchain.</b> Real SHA-256 proof-of-work. Changing block 1's data breaks block 1 and every block after it, until they are mined again.</figcaption></figure>
+        <figure class="fig-short"><img src="images/115-ai-iot.png" alt=""><figcaption><b>Fig. 65</b> · <b>IoT smart room.</b> Sensors drive rules that switch the fan, AC and lights. Architecture from device to cloud to app.</figcaption></figure>
+        <figure class="fig-short"><img src="images/104-careers-profiles.png" alt=""><figcaption><b>Fig. 66</b> · <b>Profile creation.</b> GitHub, LeetCode, HackerRank, HackerEarth, GeeksforGeeks, Stack Overflow and Figma links are checked with regular expressions (the invalid HackerRank link is flagged).</figcaption></figure>
+    </div>
+</section>
+
+<!-- ============ 10 FLOWCHART ============ -->
+<section class="chapter">
+    <p class="kicker">10 · Computational thinking (current syllabus CO4)</p>
+    <h2>Flowchart Studio</h2>
+    <figure class=""><img src="images/90-flowchart-sum.png" alt=""><figcaption><b>Fig. 67</b> · <b>Sum of 1 to N, N = 4.</b> The pseudocode line, the flowchart symbol and the path taken light up together. The loop back-edge is used four times, and the run ends with sum = 10 after 17 steps (full trace table below the chart).</figcaption></figure>
+    <div class="grid2">
+        <figure class="fig-short"><img src="images/91-flowchart-largest-midway.png" alt=""><figcaption><b>Fig. 68</b> · <b>Largest of three</b>, paused at a nested decision: A = 12, B = 47, C = 30.</figcaption></figure>
+        <figure class="fig-short"><img src="images/92-flowchart-thinking.png" alt=""><figcaption><b>Fig. 69</b> · <b>Computational thinking:</b> decomposition, pattern recognition, abstraction and algorithm design, flowchart symbols, and the properties of a good algorithm.</figcaption></figure>
+    </div>
+    <p>Five algorithms cover sequence, selection (simple, nested, if–else ladder) and iteration: largest of three, even or odd, sum 1..N, factorial and grade from marks.</p>
+</section>
+
+<!-- ============ 11 MAPPING ============ -->
+<section class="chapter">
+    <p class="kicker">11 · Syllabus and course outcome mapping</p>
+    <h2>Orientation to Computing-I: every topic</h2>
+    <p class="lead">The six units of the syllabus I studied. Each topic is listed with where it lives in ByteOS and the figure that shows it.</p>
+    <table class="t-topics">
+        <thead><tr><th>Topic</th><th>Where in ByteOS / what you do</th><th>Proof</th></tr></thead>
+        <tbody>
+            <tr><th colspan="3" style="color:var(--accent)">Unit 1 · Computer System</th></tr>
+            <tr><th>Basic structure of a computer and its components</th><td>Inside the Computer › Block diagram: clickable units and a fetch–decode–execute cycle</td><td>Fig 7</td></tr>
+            <tr><th>Memories and their types (RAM, ROM)</th><td>Inside the Computer › Memory: hierarchy, SRAM/DRAM, ROM/PROM/EPROM/EEPROM</td><td>Fig 9</td></tr>
+            <tr><th>Secondary storage devices, SSD vs HDD</th><td>Inside the Computer › Storage: race, comparison, magnetic/optical/solid state</td><td>Fig 10</td></tr>
+            <tr><th>Processors and GPU</th><td>Inside the Computer › CPU vs GPU</td><td>Fig 11</td></tr>
+            <tr><th>PC connection interfaces</th><td>Inside the Computer › Ports: USB, Thunderbolt, HDMI, DP, SATA, PCIe, Wi-Fi, Bluetooth, NFC, IR</td><td>Fig 12</td></tr>
+            <tr><th>RAID and RAID levels</th><td>Inside the Computer › RAID lab: 0, 1, 5, 6, 10 with failures</td><td>Figs 13, 14</td></tr>
+            <tr><th colspan="3" style="color:var(--accent)">Unit 2 · Operating System</th></tr>
+            <tr><th>Operating system and its architecture</th><td>System Monitor › Architecture: layers and system calls</td><td>Fig 20</td></tr>
+            <tr><th>Kernel and types of kernels</th><td>System Monitor › kernel diagrams: monolithic, micro, hybrid, exo</td><td>Fig 20</td></tr>
+            <tr><th>The bootloader</th><td>The real ByteOS boot (GRUB menu) + System Monitor › Boot process</td><td>Figs 2, 22</td></tr>
+            <tr><th>Functions of an operating system</th><td>System Monitor › Functions + CPU scheduling simulator, Processes tab</td><td>Figs 19, 23</td></tr>
+            <tr><th>Types of operating systems</th><td>System Monitor › Types of OS + scenario quiz</td><td>Fig 21</td></tr>
+            <tr><th>Directory hierarchy</th><td>Files explorer with descriptions, <code>tree</code>, <code>man hier</code></td><td>Figs 32, 31</td></tr>
+            <tr><th>Computer languages</th><td>Compiler Lab › Languages: machine, assembly, high-level</td><td>Fig 28</td></tr>
+            <tr><th>Language translators</th><td>Compiler Lab: compiler vs interpreter on the same program; assembler explained</td><td>Figs 26, 27</td></tr>
+            <tr><th>Steps in development of a program</th><td>Compiler Lab › Program development</td><td>Fig 29</td></tr>
+            <tr><th>Compilation and execution process</th><td>Compiler Lab: tokens → AST → assembly → machine code → VM</td><td>Figs 24, 25</td></tr>
+            <tr><th colspan="3" style="color:var(--accent)">Unit 3 · Linux Operating System</th></tr>
+            <tr><th>Linux overview, architecture and features</th><td>Virtual Machines › Linux vs Windows</td><td>Fig 35</td></tr>
+            <tr><th>Linux distributions</th><td>Virtual Machines › Distros</td><td>Fig 36</td></tr>
+            <tr><th>Shell commands</th><td>Terminal: 45 commands, pipes, redirection</td><td>Figs 30, 31</td></tr>
+            <tr><th>Permissions (chmod)</th><td>Terminal + Files: enforced rwx, octal and symbolic chmod, sudo, su</td><td>Figs 30, 32</td></tr>
+            <tr><th>Windows vs Linux</th><td>Virtual Machines › comparison table</td><td>Fig 35</td></tr>
+            <tr><th>Virtual machines</th><td>Virtual Machines › Hypervisor: create and run VMs</td><td>Fig 34</td></tr>
+            <tr><th>File system basics and types</th><td>Files › File system types, <code>df -T</code></td><td>Fig 33</td></tr>
+            <tr><th colspan="3" style="color:var(--accent)">Unit 4 · Cohorts and Skill Sets</th></tr>
+            <tr><th>Cohorts: skills, tools, job roles (all 8)</th><td>Career Compass › Cohorts</td><td>Fig 38</td></tr>
+            <tr><th>Pathways and MAANG</th><td>Career Compass › Pathways</td><td>Fig 39</td></tr>
+            <tr><th>MOOCs</th><td>Career Compass › MOOCs</td><td>Fig 40</td></tr>
+            <tr><th>Hackathons and competitions</th><td>Career Compass › Hackathons</td><td>Fig 41</td></tr>
+            <tr><th colspan="3" style="color:var(--accent)">Unit 5 · Computer Network and Communication</th></tr>
+            <tr><th>Networks and types (PAN, LAN, MAN, WAN)</th><td>Network Lab › Network types</td><td>Fig 48</td></tr>
+            <tr><th>Network topologies</th><td>Network Lab › Topologies with failures</td><td>Figs 43 to 45</td></tr>
+            <tr><th>Network devices</th><td>Network Lab › Devices: hub, switch, router, modem, AP, NIC</td><td>Fig 46</td></tr>
+            <tr><th>Client–server model</th><td>Network Lab › Client–server</td><td>Fig 47</td></tr>
+            <tr><th>Basic security threats, CIA triad</th><td>Security Center › CIA triad</td><td>Fig 49</td></tr>
+            <tr><th>Malware and its types</th><td>Security Center › Malware</td><td>Fig 54</td></tr>
+            <tr><th>Phishing (spear, whaling, vishing)</th><td>Security Center › Phishing</td><td>Fig 53</td></tr>
+            <tr><th>Password cracking (brute force, dictionary, rainbow)</th><td>Security Center › Passwords and Hashing</td><td>Figs 50, 51</td></tr>
+            <tr><th>Multi-factor authentication</th><td>Security Center › 2FA with real TOTP codes</td><td>Fig 52</td></tr>
+            <tr><th>User account types and privileges</th><td>Security Center › Accounts + Terminal (su, sudo, guest)</td><td>Figs 55, 30</td></tr>
+            <tr><th>Firewall basics</th><td>Security Center › Firewall rule tester</td><td>Fig 56</td></tr>
+            <tr><th colspan="3" style="color:var(--accent)">Unit 6 · Version Control</th></tr>
+            <tr><th>Overview of Git and GitHub</th><td>Git Lab: concepts, Git vs GitHub, cheat sheet</td><td>Fig 58</td></tr>
+            <tr><th>Install and configure git, create a GitHub account</th><td>Terminal: <code>git config user.name</code>; this project itself is on GitHub</td><td>§14</td></tr>
+            <tr><th>Create a local repo, add a file, commit</th><td>Terminal + Git Lab missions 1–4</td><td>Figs 57, 58</td></tr>
+            <tr><th>Create a new branch</th><td>Terminal <code>git switch -c</code>, merge, graph in Git Lab</td><td>Fig 58</td></tr>
+            <tr><th>Introduction to AI and real-life applications</th><td>AI Studio › AI basics</td><td>Fig 59</td></tr>
+            <tr><th>Generative AI, types and tools (text, image, video, research)</th><td>AI Studio › Generative AI & tools</td><td>Fig 60</td></tr>
+            <tr><th>Prompt engineering: good vs poor prompts</th><td>AI Studio › Prompt lab</td><td>Fig 61</td></tr>
+            <tr><th>Ethical use of AI</th><td>AI Studio › Ethics</td><td>Fig 62</td></tr>
+            <tr><th>Profile creation (Figma, GitHub, SO, HackerRank, HackerEarth, GfG, LeetCode)</th><td>Career Compass › Profiles</td><td>Fig 66</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="chapter">
+    <h2 style="margin-top:0">Current CSE111 (session 2026-27): course outcomes</h2>
+    <p class="lead">The current version of CSE111 adds number systems, computational thinking and emerging technologies. ByteOS covers all six of its course outcomes too.</p>
+    <div class="co-cards">
+        <div class="co-card"><b>CO1</b>Explain computer systems: organisation, hardware, memory hierarchy, storage, computer languages and number systems<em>Inside the Computer, Compiler Lab, Number Systems · Figs 7, 9, 15</em></div>
+        <div class="co-card"><b>CO2</b>Describe operating systems, Linux, networking, virtualization, cloud computing and open-source software<em>System Monitor, Terminal, Network Lab, Virtual Machines · Figs 20, 30, 34, 37</em></div>
+        <div class="co-card"><b>CO3</b>Discuss technology cohorts, career pathways, skill resources, MOOCs and hackathons<em>Career Compass · Figs 38 to 41</em></div>
+        <div class="co-card"><b>CO4</b>Apply computational thinking with algorithms, pseudocode and flowcharts<em>Flowchart Studio · Figs 67, 69</em></div>
+        <div class="co-card"><b>CO5</b>Execute Git and GitHub operations, maintain professional profiles, digital security and safe computing<em>Terminal git, Git Lab, Career Compass profiles, Security Center · Figs 57, 66, 52</em></div>
+        <div class="co-card"><b>CO6</b>Understand AI, ML, Generative AI, Agentic AI, IoT, Blockchain and Web3<em>AI Studio · Figs 59, 63, 65, 64</em></div>
+    </div>
+    <table class="t-topics">
+        <thead><tr><th>Current syllabus topic</th><th>Where in ByteOS</th><th>Proof</th></tr></thead>
+        <tbody>
+            <tr><th>Computer languages, translators, program development cycle, compilation and execution</th><td>Compiler Lab (all tabs)</td><td>Figs 24 to 29</td></tr>
+            <tr><th>Evolution and characteristics of computers, functional units, hardware and software, types of computers</th><td>Inside the Computer › Computer basics and Block diagram</td><td>Figs 8, 7</td></tr>
+            <tr><th>CPU and GPU, input and output devices, memory devices</th><td>Inside the Computer › CPU vs GPU, basics, Memory</td><td>Figs 11, 9</td></tr>
+            <tr><th>Number systems: binary, decimal, octal, hexadecimal, conversions</th><td>Number Systems</td><td>Figs 15 to 18</td></tr>
+            <tr><th>Version control: Git, GitHub, local repo, add, commit, branch</th><td>Terminal + Git Lab</td><td>Figs 57, 58</td></tr>
+            <tr><th>Modern AI trends and tools, prompt engineering, ethics</th><td>AI Studio</td><td>Figs 60 to 62</td></tr>
+            <tr><th>Profile creation on technical platforms</th><td>Career Compass › Profiles</td><td>Fig 66</td></tr>
+        </tbody>
+    </table>
+    <figure class="fig-short"><img src="images/07-coursemap-unit.png" alt=""><figcaption><b>Fig. 70</b> · <b>The same mapping inside ByteOS:</b> the Course Map lists every topic with a link to the app and tab, and ticks the ones you have opened.</figcaption></figure>
+</section>
+
+<!-- ============ 12 CODE ============ -->
+<section class="chapter">
+    <p class="kicker">12 · Code walkthrough</p>
+    <h2>How the important parts work</h2>
+    <p class="lead">Short extracts from the real source, with what each does and which syllabus idea it implements.</p>
+
+    <h3>1. Permissions (Linux, Unit 3)</h3>
+    <div class="walk">
+        <pre><span class="file">vfs.js · lines 125–130</span>export function can(user, node, action) {
+    if (user === &#x27;root&#x27;) return true;
+    const shift = node.owner === user ? 6 : 0;
+    const bit = { r: 4, w: 2, x: 1 }[action];
+    return Boolean((node.mode &gt;&gt; shift) &amp; bit);
+}</pre>
+        <div><p>Each file stores its owner and a mode like <code>0o644</code>. Root is always allowed. Otherwise the owner gets the first rwx triple and everyone else the last one, and the bit for r (4), w (2) or x (1) is tested.</p></div>
+    </div>
+    <div class="walk">
+        <pre><span class="file">vfs.js · lines 146–157</span>function walk(path, user) {
+    let node = root;
+    let seen = &#x27;&#x27;;
+    for (const part of path.split(&#x27;/&#x27;).filter(Boolean)) {
+        need(user, node, &#x27;x&#x27;, seen || &#x27;/&#x27;);
+        if (node.type !== &#x27;dir&#x27;) throw new FsError(`${seen}: Not a directory`);
+        node = node.children[part];
+        seen += &#x27;/&#x27; + part;
+        if (!node) throw new FsError(`${seen}: No such file or directory`);
+    }
+    return node;
+}</pre>
+        <div><p>Like Linux, you need execute (search) permission on every directory along a path. That is why a standard user cannot even list <code>/root</code>, which has mode 700.</p></div>
+    </div>
+
+    <h3>2. Shell parsing (Unit 3)</h3>
+    <div class="walk">
+        <pre><span class="file">terminal.js · lines 63–73</span>function tokenize(line) {
+    const tokens = [];
+    const re = /&quot;([^&quot;]*)&quot;|&#x27;([^&#x27;]*)&#x27;|(&amp;&amp;|&gt;&gt;|&gt;|\||[^\s|&gt;&amp;]+)/g;
+    let match;
+    while ((match = re.exec(line))) {
+        if (match[1] !== undefined) tokens.push({ value: match[1], quoted: &#x27;double&#x27; });
+        else if (match[2] !== undefined) tokens.push({ value: match[2], quoted: &#x27;single&#x27; });
+        else tokens.push({ value: match[3], op: [&#x27;&amp;&amp;&#x27;, &#x27;&gt;&gt;&#x27;, &#x27;&gt;&#x27;, &#x27;|&#x27;].includes(match[3]) });
+    }
+    return tokens;
+}</pre>
+        <div><p>A regular expression splits the line into words, quoted strings and the operators <code>&amp;&amp;</code>, <code>|</code>, <code>&gt;</code> and <code>&gt;&gt;</code>. The shell then runs <code>&amp;&amp;</code> chains, feeds each pipe stage's output into the next, and writes redirections to files.</p></div>
+    </div>
+    <div class="walk">
+        <pre><span class="file">terminal.js · lines 497–507</span>if (name === &#x27;sudo&#x27;) {
+    if (!USERS[state.user].sudo) throw new ShellError(`${state.user} is not in the sudoers file. This incident will be reported.`);
+    if (!rest.length) throw new ShellError(&#x27;usage: sudo command&#x27;);
+    const before = state.user;
+    state.user = &#x27;root&#x27;;
+    try {
+        return await runSimple(rest, stdin, &#x27;root&#x27;);
+    } finally {
+        state.user = before;
+    }
+}</pre>
+        <div><p><code>sudo</code> checks if the user is in the sudo group, runs ONE command as root, and always switches back in <code>finally</code>, even if the command fails. Guests get the classic "not in the sudoers file" message.</p></div>
+    </div>
+</section>
+
+<section class="chapter">
+    <h3 style="margin-top:0">3. Git commits and merges (Unit 6)</h3>
+    <div class="walk">
+        <pre><span class="file">git.js · lines 197–211</span>case &#x27;commit&#x27;: {
+    const at = rest.indexOf(&#x27;-m&#x27;);
+    const message = at === -1 ? &#x27;&#x27; : rest.slice(at + 1).join(&#x27; &#x27;);
+    if (!message) return [&#x27;error: please give a message with -m &quot;what you changed&quot;&#x27;];
+    if (!diffTrees(head, repo.index).length) return [`On branch ${repo.head}`, &#x27;nothing to commit, working tree clean&#x27;];
+    const parent = repo.branches[repo.head];
+    const { name, email } = identity();
+    const time = Date.now();
+    const id = hash(`${parent}${message}${time}${JSON.stringify(repo.index)}`) + hash(String(time));
+    repo.commits[id] = { id, message, parents: parent ? [parent] : [], tree: { ...repo.index }, author: `${name} &lt;${email}&gt;`, time, branch: repo.head };
+    repo.branches[repo.head] = id;
+    save();
+    const files = diffTrees(head, repo.index);
+    return [`[${repo.head}${parent ? &#x27;&#x27; : &#x27; (root-commit)&#x27;} ${id.slice(0, 7)}] ${message}`, ` ${files.length} file${files.length === 1 ? &#x27;&#x27; : &#x27;s&#x27;} changed`];
+}</pre>
+        <div><p>A commit snapshots the staging area (index), records its parent and author, and moves the current branch to point at it. Nothing to commit = no change between HEAD and the index.</p></div>
+    </div>
+    <div class="walk">
+        <pre><span class="file">git.js · lines 316–322</span>for (const path of new Set([...Object.keys(baseTree), ...Object.keys(oursTree), ...Object.keys(theirsTree)])) {
+    const [b, o, t] = [baseTree[path], oursTree[path], theirsTree[path]];
+    if (o === t) { if (o !== undefined) merged[path] = o; }
+    else if (o === b) { if (t !== undefined) merged[path] = t; }
+    else if (t === b) { if (o !== undefined) merged[path] = o; }
+    else conflicts.push(path);
+}</pre>
+        <div><p>Three-way merge: for each file, compare the common ancestor (base), our branch and their branch. If only one side changed it, take that side. If both changed it differently, it is a conflict, and the merge is aborted so nothing is lost.</p></div>
+    </div>
+
+    <h3>4. RAID parity (Unit 1)</h3>
+    <div class="walk">
+        <pre><span class="file">hardware.js · lines 408–420</span>// GF(2^8) multiply, used for RAID 6&#x27;s Q parity
+function gfMul(a, b) {
+    let p = 0;
+    for (let i = 0; i &lt; 8; i++) {
+        if (b &amp; 1) p ^= a;
+        const carry = a &amp; 0x80;
+        a = (a &lt;&lt; 1) &amp; 0xff;
+        if (carry) a ^= 0x1d;
+        b &gt;&gt;= 1;
+    }
+    return p;
+}
+const gfPow = (n) =&gt; { let r = 1; for (let i = 0; i &lt; n; i++) r = gfMul(r, 2); return r; };</pre>
+        <div><p>RAID 5's P parity is a plain XOR of the data blocks. RAID 6's second parity, Q, multiplies each block by a different power of 2 in the Galois field GF(2⁸). That is how two lost blocks can be solved.</p></div>
+    </div>
+    <div class="walk">
+        <pre><span class="file">hardware.js · lines 453–461</span>function survives(level, n, failed) {
+    const f = failed.size;
+    if (level === 0) return f === 0;
+    if (level === 1) return f &lt; n;
+    if (level === 5) return f &lt;= 1;
+    if (level === 6) return f &lt;= 2;
+    if (level === 10) { for (let p = 0; p &lt; n / 2; p++) if (failed.has(p * 2) &amp;&amp; failed.has(p * 2 + 1)) return false; return true; }
+    return false;
+}</pre>
+        <div><p>Fault tolerance per level: RAID 0 survives nothing, RAID 5 one disk, RAID 6 two, and RAID 10 survives as long as no mirror pair loses both disks.</p></div>
+    </div>
+</section>
+
+<section class="chapter">
+    <h3 style="margin-top:0">5. Compiler: recursive-descent parser (Unit 2)</h3>
+    <div class="walk">
+        <pre><span class="file">compiler.js · lines 62–80</span>const factor = () =&gt; {
+    const t = peek();
+    if (t.type === &#x27;NUMBER&#x27;) { next(); return { type: &#x27;Number&#x27;, value: Number(t.value) }; }
+    if (t.type === &#x27;IDENT&#x27;) { next(); return { type: &#x27;Var&#x27;, name: t.value, line: t.line, col: t.col }; }
+    if (t.type === &#x27;LPAREN&#x27;) { next(); const e = expr(); expect(&#x27;RPAREN&#x27;, &#x27;)&#x27;, &#x27;&quot;)&quot;&#x27;); return e; }
+    if (t.type === &#x27;OPERATOR&#x27; &amp;&amp; t.value === &#x27;-&#x27;) { next(); return { type: &#x27;Negate&#x27;, value: factor() }; }
+    throw new CompileError(`Expected a number, variable or &quot;(&quot; but found ${t.type === &#x27;EOF&#x27; ? &#x27;end of program&#x27; : `&quot;${t.value}&quot;`}`, t.line, t.col);
+};
+const term = () =&gt; {
+    let left = factor();
+    while (peek().type === &#x27;OPERATOR&#x27; &amp;&amp; &#x27;*/&#x27;.includes(peek().value)) left = { type: &#x27;Binary&#x27;, op: next().value, left, right: factor() };
+    return left;
+};
+const expr = () =&gt; {
+    let left = term();
+    while (peek().type === &#x27;OPERATOR&#x27; &amp;&amp; &#x27;+-&#x27;.includes(peek().value)) left = { type: &#x27;Binary&#x27;, op: next().value, left, right: term() };
+    return left;
+};
+const statement = () =&gt; {</pre>
+        <div><p>Operator precedence comes from the grammar itself. <code>expr</code> handles + and −, and calls <code>term</code>. <code>term</code> handles × and ÷, and calls <code>factor</code>. So in <code>2 + 3 * 4</code> the multiplication is grouped first. Each function returns a node of the syntax tree.</p></div>
+    </div>
+
+    <h3>6. Round Robin scheduling (Unit 2)</h3>
+    <div class="walk">
+        <pre><span class="file">monitor.js · lines 235–256</span>if (algo === &#x27;rr&#x27;) {
+    const queue = [];
+    const arrived = new Set();
+    const admit = () =&gt; list.filter(p =&gt; p.arrival &lt;= time &amp;&amp; !arrived.has(p.id)).sort((a, b) =&gt; a.arrival - b.arrival).forEach(p =&gt; { arrived.add(p.id); queue.push(p); });
+    admit();
+    while (Object.keys(done).length &lt; list.length) {
+        if (!queue.length) {
+            const next = Math.min(...list.filter(p =&gt; !arrived.has(p.id)).map(p =&gt; p.arrival));
+            push(&#x27;idle&#x27;, time, next);
+            time = next;
+            admit();
+            continue;
+        }
+        const p = queue.shift();
+        const run = Math.min(quantum, p.left);
+        push(p.id, time, time + run);
+        time += run;
+        p.left -= run;
+        admit();
+        if (p.left &gt; 0) queue.push(p); else done[p.id] = time;
+    }
+} else {</pre>
+        <div><p>A ready queue: each process runs for at most one time quantum, newly arrived processes join the queue, and an unfinished process goes to the back. The tested example matches the textbook result (average waiting time 7.25).</p></div>
+    </div>
+
+    <h3>7. Number conversion (current Unit I)</h3>
+    <div class="walk">
+        <pre><span class="file">numbers.js · lines 6–12</span>const BASES = { 2: &#x27;Binary&#x27;, 8: &#x27;Octal&#x27;, 10: &#x27;Decimal&#x27;, 16: &#x27;Hexadecimal&#x27; };
+const VALID = { 2: /^[01]+$/, 8: /^[0-7]+$/, 10: /^\d+$/, 16: /^[\da-f]+$/i };
+const DIGITS = &#x27;0123456789ABCDEF&#x27;;
+
+const parse = (text, base) =&gt; [...text.toUpperCase()].reduce((acc, d) =&gt; acc * BigInt(base) + BigInt(DIGITS.indexOf(d)), 0n);
+const format = (value, base) =&gt; value.toString(base).toUpperCase();
+const group = (bin, size) =&gt; bin.padStart(Math.ceil(bin.length / size) * size, &#x27;0&#x27;).match(new RegExp(`.{${size}}`, &#x27;g&#x27;));</pre>
+        <div><p>Any base to decimal is positional expansion (multiply the running total by the base and add the digit). <code>BigInt</code> keeps it exact for long numbers. The step-by-step tables use the same arithmetic.</p></div>
+    </div>
+</section>
+
+<section class="chapter">
+    <h3 style="margin-top:0">8. Network reachability (Unit 5)</h3>
+    <div class="walk">
+        <pre><span class="file">network.js · lines 88–106</span>function reachable(graph, from, failedNodes, cutEdges) {
+    if (failedNodes.has(from)) return new Set();
+    const seen = new Set([from]);
+    const prev = new Map();
+    const queue = [from];
+    while (queue.length) {
+        const cur = queue.shift();
+        for (const e of graph.edges) {
+            if (cutEdges.has(e.id)) continue;
+            const other = e.a === cur ? e.b : e.b === cur ? e.a : null;
+            if (!other || seen.has(other) || failedNodes.has(other)) continue;
+            seen.add(other);
+            prev.set(other, { node: cur, edge: e.id });
+            queue.push(other);
+        }
+    }
+    seen.prev = prev;
+    return seen;
+}</pre>
+        <div><p>Breadth-first search over cables that are not cut and devices that have not failed. It also records the previous hop, so a packet's route can be drawn. The "survives one cut" check runs this once per cable.</p></div>
+    </div>
+
+    <h3>9. Two-factor codes, RFC 6238 (Unit 5)</h3>
+    <div class="walk">
+        <pre><span class="file">security.js · lines 190–201</span>export async function totp(secretBytes, time = Date.now(), step = 30, digits = 6) {
+    const counter = Math.floor(time / 1000 / step);
+    const msg = new ArrayBuffer(8);
+    const view = new DataView(msg);
+    view.setUint32(0, Math.floor(counter / 2 ** 32));
+    view.setUint32(4, counter &gt;&gt;&gt; 0);
+    const key = await crypto.subtle.importKey(&#x27;raw&#x27;, secretBytes, { name: &#x27;HMAC&#x27;, hash: &#x27;SHA-1&#x27; }, false, [&#x27;sign&#x27;]);
+    const sig = new Uint8Array(await crypto.subtle.sign(&#x27;HMAC&#x27;, key, msg));
+    const offset = sig[sig.length - 1] &amp; 0x0f;
+    const code = (((sig[offset] &amp; 0x7f) &lt;&lt; 24) | (sig[offset + 1] &lt;&lt; 16) | (sig[offset + 2] &lt;&lt; 8) | sig[offset + 3]) % 10 ** digits;
+    return String(code).padStart(digits, &#x27;0&#x27;);
+}</pre>
+        <div><p>TOTP = HMAC-SHA1(shared secret, number of 30-second steps since 1970), then "dynamic truncation" to 6 digits. It uses the browser's Web Crypto API. It was checked against the official RFC test vectors (94287082 at t = 59 s).</p></div>
+    </div>
+
+    <h3>10. Proof-of-work mining (CO6)</h3>
+    <div class="walk">
+        <pre><span class="file">ai.js · lines 218–228</span>const mine = async (i) =&gt; {
+    const prev = i ? chain[i - 1].hash : &#x27;0&#x27;.repeat(64);
+    const b = chain[i];
+    b.nonce = 0;
+    while (true) {
+        b.hash = await blockHash(b, i, prev);
+        if (b.hash.startsWith(DIFFICULTY)) return;
+        b.nonce++;
+        if (b.nonce % 400 === 0) { status.textContent = `Mining block ${i}… tried ${b.nonce} nonces`; await sleep(0); }
+    }
+};</pre>
+        <div><p>Try nonce 0, 1, 2… until SHA-256 of (index, data, previous hash, nonce) starts with "000". On average that takes about 4,096 tries, which is what makes rewriting history expensive.</p></div>
+    </div>
+</section>
+
+<!-- ============ 13 TESTING ============ -->
+<section class="chapter">
+    <p class="kicker">13 · Testing</p>
+    <h2>What was checked</h2>
+    <p class="lead">Every check below was actually run in a browser (Chrome) or in Node.js, and every result shown is the real output.</p>
+    <table>
+        <thead><tr><th style="width:4%">#</th><th style="width:34%">Test</th><th>Result</th><th style="width:7%"></th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td>Open all 14 apps and all 58 tabs</td><td>Every screen rendered, zero JavaScript errors in the console</td><td class="ok">Pass</td></tr>
+            <tr><td>2</td><td>Boot: POST → GRUB (Enter) → kernel → login</td><td>Reaches the login screen. Esc skips at any stage.</td><td class="ok">Pass</td></tr>
+            <tr><td>3</td><td><code>cat /etc/shadow</code> as lukshya, then with sudo</td><td>"Permission denied", then the file contents</td><td class="ok">Pass</td></tr>
+            <tr><td>4</td><td><code>su guest</code> then <code>sudo ls /root</code></td><td>"guest is not in the sudoers file"</td><td class="ok">Pass</td></tr>
+            <tr><td>5</td><td><code>chmod 600 welcome.txt</code></td><td>Mode shown as <code>-rw-------</code></td><td class="ok">Pass</td></tr>
+            <tr><td>6</td><td>Pipe and redirect: <code>cat … | grep -i ram</code>, <code>echo … &gt;&gt; file</code></td><td>Matching line found. File grows to 5 lines.</td><td class="ok">Pass</td></tr>
+            <tr><td>7</td><td>Git: init, add, commit, branch, commit, switch, commit, merge</td><td>Three-way merge commit. Log shows 4 commits. Git Lab ticks missions 1–7.</td><td class="ok">Pass</td></tr>
+            <tr><td>8</td><td>RAID 5 with one failed disk / RAID 0 with one failed disk</td><td>"Degraded but alive", data rebuilt / "Array failed", data lost</td><td class="ok">Pass</td></tr>
+            <tr><td>9</td><td>Compile the rectangle program</td><td>Output 60 and 34 (12 × 5 and (12 + 5) × 2)</td><td class="ok">Pass</td></tr>
+            <tr><td>10</td><td>Program with a missing ";" on line 4</td><td>Compiler: error at line 4, nothing runs. Interpreter: prints 82, then stops at line 4.</td><td class="ok">Pass</td></tr>
+            <tr><td>11</td><td>Scheduling P1–P4 (arrival 0,1,2,3 · burst 5,3,8,2), q = 2</td><td>Average waiting: FCFS 5.75, SJF 4.00, RR 7.25 (match hand calculation)</td><td class="ok">Pass</td></tr>
+            <tr><td>12</td><td>Conversions</td><td>2026₁₀ = 7EA₁₆, 1101011₂ = 107₁₀ = 153₈, 11000001 signed = −63</td><td class="ok">Pass</td></tr>
+            <tr><td>13</td><td>Ring with one, then two cuts; star with failed switch</td><td>6/6, then 3/6 reachable; 1/6</td><td class="ok">Pass</td></tr>
+            <tr><td>14</td><td>Switch: A → C, then C → A</td><td>Floods first, learns both MACs, then sends to one port only</td><td class="ok">Pass</td></tr>
+            <tr><td>15</td><td>TOTP against RFC 6238 test vectors</td><td>94287082 (t = 59) and 07081804 (t = 1111111109) exactly</td><td class="ok">Pass</td></tr>
+            <tr><td>16</td><td>2FA login with the current code</td><td>"Logged in!" Password and code both accepted.</td><td class="ok">Pass</td></tr>
+            <tr><td>17</td><td>Passwords: "password", "P@ssw0rd123", a 4-word passphrase</td><td>Dictionary (4 bits), dictionary with rules (14 bits), 171 bits</td><td class="ok">Pass</td></tr>
+            <tr><td>18</td><td>Rainbow table with and without salt</td><td>"iloveyou" cracked instantly / not found with a salt</td><td class="ok">Pass</td></tr>
+            <tr><td>19</td><td>Flowchart "sum of 1 to N", N = 4</td><td>Output 10 after 17 steps</td><td class="ok">Pass</td></tr>
+            <tr><td>20</td><td>Blockchain: edit block 1, then mine again</td><td>Blocks 1 and 2 invalid, then all valid after re-mining</td><td class="ok">Pass</td></tr>
+            <tr><td>21</td><td>Phone width (390 px)</td><td>Icons in a grid, windows full screen, no sideways scrolling</td><td class="ok">Pass</td></tr>
+        </tbody>
+    </table>
+    <div class="grid2">
+        <figure class="fig-phone"><img src="images/120-mobile-desktop.png" alt=""><figcaption><b>Fig. 71</b> · <b>Phone:</b> the desktop adapts to a grid of icons.</figcaption></figure>
+        <figure class="fig-phone"><img src="images/121-mobile-app.png" alt=""><figcaption><b>Fig. 72</b> · <b>Phone:</b> apps open full screen.</figcaption></figure>
+    </div>
+</section>
+
+<!-- ============ 14 DEPLOYMENT + CONCLUSION ============ -->
+<section class="chapter">
+    <p class="kicker">14 · Deployment and conclusion</p>
+    <h2>Hosted on GitHub Pages</h2>
+    <p>The source code is in a public GitHub repository and is served as a website by GitHub Pages from the <code>main</code> branch. This also practises the Unit 6 topics for real: the project was built as a git repository with commits, and published on GitHub.</p>
+    <pre>git init
+git add .
+git commit -m "ByteOS: a computer in the browser"
+git remote add origin https://github.com/LuShadowX/ByteOS.git
+git push -u origin main
+# Settings → Pages → Deploy from branch: main / (root)</pre>
+    <p>To run it locally: <code>python3 -m http.server 8000</code> in the folder, then open <code>http://localhost:8000</code>.</p>
+    <h2 style="margin-top:22px">What I learned</h2>
+    <ul>
+        <li><b>The OS is a set of rules, not a picture.</b> Making permissions actually block things showed me why <code>x</code> on a directory matters and why root is separated from normal users.</li>
+        <li><b>Redundancy has a price.</b> The RAID lab made the trade-off clear: RAID 0 is 100% efficient and fragile, RAID 1 is safe and 50% efficient, and parity sits in between.</li>
+        <li><b>A compiler is just careful steps.</b> Tokens, a tree, then instructions. The compiler vs interpreter difference became obvious when the interpreter printed output before hitting the error.</li>
+        <li><b>Security is mostly about people and maths.</b> Long passphrases beat clever symbols, salts defeat rainbow tables, and 2FA works because a code depends on both the secret and the time.</li>
+        <li><b>Git is a graph.</b> Seeing branches and merges drawn live made commits, parents and HEAD click.</li>
+    </ul>
+    <div class="note" style="margin-top:16px"><b>Links</b><br>Live: https://lushadowx.github.io/ByteOS/<br>Code: https://github.com/LuShadowX/ByteOS</div>
+</section>
+
+</body>
+</html>
